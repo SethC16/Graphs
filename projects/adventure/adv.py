@@ -5,6 +5,26 @@ from world import World
 import random
 from ast import literal_eval
 
+""" MY CODE """
+class Stack:
+    def __init__(self):
+        self.stack = []
+
+    def push(self, value):
+        self.stack.append(value)
+
+    def pop(self):
+        if self.size() > 0:
+            return self.stack.pop()
+        else:
+            return None
+
+    def size(self):
+        return len(self.stack)
+""" MY CODE ENDS """ 
+
+
+
 # Load world
 world = World()
 
@@ -30,6 +50,49 @@ player = Player(world.starting_room)
 traversal_path = []
 
 
+''' MY CODE '''
+# get reverse direction of the direction just traveled
+reverse_dir = {"n": "s", "s": "n", "e": "w", "w": "e"}
+# keep track of the reverse path for backtracking
+reverse_path = []
+
+# Dictionary for exits
+rooms = {}
+
+# add room id to rooms as directions
+rooms[0] = player.current_room.get_exits()
+
+# while rooms visited is less than total rooms
+while len(rooms) < len(room_graph) - 1:
+    # if room hasnt been visited
+    if player.current_room.id not in rooms:
+        # add exits for the current room to rooms
+        rooms[player.current_room.id] = player.current_room.get_exits()
+        # store last direction traveled in reverse path
+        last_dir = reverse_path[-1]
+        # remove last exit from exits dictionary
+        rooms[player.current_room.id].remove(last_dir)
+
+    # while no rooms to explore
+    while len(rooms[player.current_room.id]) < 1:
+        # remove last direction in reverse_path
+        reverse = reverse_path.pop()
+        # remove last direction to traversal_path
+        traversal_path.append(reverse)
+        # travel in that direction
+        player.travel(reverse)
+
+    # travel in first available exit direction in room
+    exit_dir = rooms[player.current_room.id].pop(0)
+    # add to traversal_path
+    traversal_path.append(exit_dir)
+    # add reverse direction to the reverse path
+    reverse_path.append(reverse_dir[exit_dir])
+    # travel to next room
+    player.travel(exit_dir)
+""" MY CODE ENDS """
+
+
 
 # TRAVERSAL TEST
 visited_rooms = set()
@@ -51,12 +114,12 @@ else:
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] in ["n", "s", "e", "w"]:
-        player.travel(cmds[0], True)
-    elif cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
+# player.current_room.print_room_description(player)
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] in ["n", "s", "e", "w"]:
+#         player.travel(cmds[0], True)
+#     elif cmds[0] == "q":
+#         break
+#     else:
+#         print("I did not understand that command.")
